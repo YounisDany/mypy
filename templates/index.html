@@ -1,13 +1,109 @@
-<!DOCTYPE html>
-<html lang="ar">
+<!DOCTYPE HTML>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الصفحة الرئيسية</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Remove Background from Image for Free – YourSite</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .preview-container {
+            margin-top: 20px;
+            position: relative;
+            text-align: center;
+        }
+        .preview-image {
+            max-width: 100%;
+            height: auto;
+            display: inline-block;
+        }
+        .loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #3498db;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <h1>مرحباً بك في موقعي!</h1>
-    <p>هذه هي الصفحة الرئيسية.</p>
-    <a href="/about">عن الموقع</a>
+<div class="container text-center">
+    <h1 class="mb-4">Remove Background from Image</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <input type="file" name="image" class="form-control-file" id="imageInput" accept="image/*" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Remove Background</button>
+    </form>
+    <div class="loader" id="loader"></div>
+    <div class="preview-container">
+        <h4 class="mt-4">Preview:</h4>
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Before:</h5>
+                <img id="beforeImage" class="preview-image" alt="Original Image">
+            </div>
+            <div class="col-md-6">
+                <h5>After:</h5>
+                <img id="afterImage" class="preview-image" alt="Processed Image">
+            </div>
+        </div>
+        <a id="downloadButton" class="btn btn-success btn-block mt-4" href="#" download="output.png">Download Image</a>
+    </div>
+</div>
+
+<!-- Include jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#uploadForm').on('submit', function(event) {
+        event.preventDefault();
+        var formData = new FormData(this);
+        $('#loader').show();
+        $.ajax({
+            url: '/remove-background',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $('#loader').hide();
+                var imageSrc = 'data:image/png;base64,' + response.image;
+                $('#afterImage').attr('src', imageSrc);
+                $('#downloadButton').attr('href', imageSrc);
+            },
+            error: function() {
+                $('#loader').hide();
+                alert('An error occurred while processing the image.');
+            }
+        });
+    });
+
+    document.getElementById('imageInput').addEventListener('change', function(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            document.getElementById('beforeImage').src = reader.result;
+            document.getElementById('afterImage').src = "";
+            document.getElementById('downloadButton').href = "";
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    });
+});
+</script>
 </body>
 </html>
